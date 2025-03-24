@@ -38,13 +38,22 @@ if __name__ == "__main__":
     
     start_time = time.time()
     rmp, lambda_s = initialize_rmp(initial_routes)
-    
-    while True:
+    max_iter = 1000
+    optimality_gap = 1.0
+    best_lower_bound = float('inf')
+    i = 0
+
+    while i < max_iter and optimality_gap > 0.01:
         duals = solve_rmp(rmp)
         new_routes = pricing_problem(n_bins, distance_matrix_with_depot, duals, waste_loads)
         if not new_routes:
             break
         initial_routes = add_new_routes_to_rmp(rmp, initial_routes, new_routes)
+        rmp.solve()
+        current_obj_value = pulp.value(rmp.objective)
+        best_lower_bound = min(best_lower_bound, current_obj_value)
+        optimality_gap = (current_obj_value - best_lower_bound) / current_obj_value
+        i += 1
     
     rmp.solve()
     print("Status:", pulp.LpStatus[rmp.status])
@@ -71,3 +80,5 @@ if __name__ == "__main__":
     print(f"Truck Capacity Used: {TRUCK_CAPACITY} kg")
     print(f"Total Waste Load: {sum(waste_loads.values()):.1f} kg")
     print(f"Execution Time: {time.time() - start_time:.2f} seconds")
+    print(f"Total routes discovered: {len(initial_routes)}")
+    print(f"Optimality Gap: {optimality_gap:.2f}")

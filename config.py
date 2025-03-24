@@ -2,8 +2,8 @@ import numpy as np
 
 # Configuration parameters
 SEED = 42
-NUM_LOCATIONS = 20
-CITY_GRID_SIZE = 400
+NUM_LOCATIONS = 100
+CITY_GRID_SIZE = NUM_LOCATIONS*NUM_LOCATIONS
 TRUCK_CAPACITY = 200  # kg
 
 # Random seed for reproducibility

@@ -1,5 +1,6 @@
 import pulp
 from config import TRUCK_CAPACITY
+from concurrent.futures import ThreadPoolExecutor
 
 def build_pricing_problem(n_bins, distance_matrix, dual_values, waste_loads):
     model = pulp.LpProblem("Pricing_Problem", pulp.LpMinimize)
@@ -60,16 +61,49 @@ def extract_new_route(x_vars, n_bins):
         current = next_node
     return route
 
+def calculate_savings(i, j, distance_matrix, dual_values):
+    return (i, j), distance_matrix[0][i] + distance_matrix[0][j] - distance_matrix[i][j] - (dual_values[i] + dual_values[j])
+
+def clarke_wright_savings_heuristic(n_bins, distance_matrix, dual_values, waste_loads):
+    savings = {}
+    with ThreadPoolExecutor(max_workers= 8) as executor:
+        futures = [executor.submit(calculate_savings, i, j, distance_matrix, dual_values) for i in range(1, n_bins + 1) for j in range(i + 1, n_bins + 1)]
+        for future in futures:
+            (i, j), saving = future.result()
+            savings[(i, j)] = saving
+
+    sorted_savings = sorted(savings.items(), key=lambda item: item[1], reverse=True)
+    
+    routes = {i: [0, i, 0] for i in range(1, n_bins + 1)}
+    route_loads = {i: waste_loads[i] for i in range(1, n_bins + 1)}
+
+    for (i, j), saving in sorted_savings:
+        if i in routes and j in routes and routes[i][-2] == i and routes[j][1] == j:
+            if route_loads[i] + route_loads[j] <= TRUCK_CAPACITY:
+                routes[i] = routes[i][:-1] + routes[j][1:]
+                route_loads[i] += route_loads[j]
+                del routes[j]
+
+    new_routes = []
+    for route in routes.values():
+        if len(route) > 3:
+            new_routes.append(route[1:-1])
+
+    return new_routes
+
 def pricing_problem(n_bins, distance_matrix, dual_values, waste_loads):
-    model, x, y = build_pricing_problem(n_bins, distance_matrix, dual_values, waste_loads)
-    reduced_cost = solve_pricing(model)
-    if reduced_cost is None or reduced_cost >= -1e-5:
+    new_routes = clarke_wright_savings_heuristic(n_bins, distance_matrix, dual_values, waste_loads)
+    if not new_routes:
         return None
-    new_route = extract_new_route(x, n_bins)
-    route_cost = sum(distance_matrix[i][j] * x[i, j].value() for i in range(n_bins + 1) for j in range(n_bins + 1) if i != j)
-    reduced_cost = route_cost - sum(dual_values[i] for i in new_route)
-    return [{
-        "route": new_route,
-        "cost": route_cost,
-        "reduced_cost": reduced_cost
-    }]
+
+    routes_info = []
+    for route in new_routes:
+        route_cost = sum(distance_matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
+        reduced_cost = route_cost - sum(dual_values[i] for i in route)
+        routes_info.append({
+            "route": route,
+            "cost": route_cost,
+            "reduced_cost": reduced_cost
+        })
+
+    return routes_info
