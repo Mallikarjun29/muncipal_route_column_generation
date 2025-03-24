@@ -6,6 +6,8 @@ from scipy.spatial.distance import cdist
 from pricing_problem import pricing_problem
 import pulp
 from config import *
+import time
+
 if __name__ == "__main__":
     locations = generate_locations()
     distance_matrix = compute_distance_matrix(locations)
@@ -28,6 +30,7 @@ if __name__ == "__main__":
     for i in range(1, NUM_LOCATIONS + 1):
         initial_routes[f"a_{i}"] = initial_routes["Bins_Covered"].apply(lambda x: 1 if i in x else 0)
     
+    start_time = time.time()
     rmp, lambda_s = initialize_rmp(initial_routes)
     
     while True:
@@ -60,3 +63,5 @@ if __name__ == "__main__":
     print(f"\nTotal Routes Selected: {selected_count}")
     print(f"Total Distance: {total_cost:.2f} km")
     print(f"Truck Capacity Used: {TRUCK_CAPACITY} kg")
+    print(f"Total Waste Load: {sum(waste_loads.values()):.1f} kg")
+    print(f"Execution Time: {time.time() - start_time:.2f} seconds")
