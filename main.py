@@ -21,14 +21,20 @@ if __name__ == "__main__":
     
     waste_loads = {row["Location_ID"]: row["Bin_Capacity"] * (row["Current_Fill_Level"] / 100) for _, row in dataset.iterrows()}
     n_bins = len(waste_loads)
-    
+
     initial_routes = pd.DataFrame({
         "Route_ID": [f"R{i}" for i in range(1, NUM_LOCATIONS + 1)],
         "Bins_Covered": [{i} for i in range(1, NUM_LOCATIONS + 1)],
         "Cost": dataset["Route_Cost"].values
     })
-    for i in range(1, NUM_LOCATIONS + 1):
-        initial_routes[f"a_{i}"] = initial_routes["Bins_Covered"].apply(lambda x: 1 if i in x else 0)
+
+    # Create a DataFrame for the a_i columns
+    a_columns = pd.DataFrame({
+        f"a_{i}": initial_routes["Bins_Covered"].apply(lambda x: 1 if i in x else 0) for i in range(1, NUM_LOCATIONS + 1)
+    })
+
+    # Concatenate the a_columns DataFrame to the initial_routes DataFrame
+    initial_routes = pd.concat([initial_routes, a_columns], axis=1)
     
     start_time = time.time()
     rmp, lambda_s = initialize_rmp(initial_routes)
