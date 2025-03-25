@@ -43,7 +43,7 @@ if __name__ == "__main__":
     best_lower_bound = float('inf')
     i = 0
 
-    while i < max_iter and optimality_gap > 0.01:
+    while i < max_iter:
         duals = solve_rmp(rmp)
         new_routes = pricing_problem(n_bins, distance_matrix_with_depot, duals, waste_loads)
         if not new_routes:
@@ -81,4 +81,4 @@ if __name__ == "__main__":
     print(f"Total Waste Load: {sum(waste_loads.values()):.1f} kg")
     print(f"Execution Time: {time.time() - start_time:.2f} seconds")
     print(f"Total routes discovered: {len(initial_routes)}")
-    print(f"Optimality Gap: {optimality_gap:.2f}")
+    print(f"Optimality Gap: {optimality_gap}")
