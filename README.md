@@ -1,8 +1,3 @@
-# muncipal_route_column_generationSure, I'll create a README.md file that includes instructions for setting up the environment, installing the required dependencies, and running the code. Based on the provided `pip freeze` output, I'll include only the necessary dependencies for your project.
-
-### README.md
-
-```markdown
 # Municipal Route Column Generation
 
 This project implements a column generation approach to solve the municipal routes problem using the Clarke-Wright Savings Heuristic with dual-value weighting.
@@ -27,7 +22,7 @@ You can install these dependencies using `pip`:
 pip install numpy==2.2.4 pandas==2.2.3 scipy==1.15.2 PuLP==3.0.2 networkx==3.4.2
 ```
 
-## Setup
+## Running the Code
 
 1. Clone the repository:
 
@@ -36,21 +31,15 @@ git clone https://github.com/yourusername/muncipal_route_column_generation.git
 cd muncipal_route_column_generation
 ```
 
-2. Install the required dependencies:
 
-```sh
-pip install -r requirements.txt
-```
 
-## Running the Code
-
-1. Generate the instances:
+2. After installing required dependencies generate the instances:
 
 ```sh
 python generate_instances.py
 ```
 
-2. Run the main script to solve the municipal routes problem:
+3. Run the main script to solve the municipal routes problem:
 
 ```sh
 python main.py
@@ -71,14 +60,4 @@ After running the `main.py` script, you will see the status, total cost, and det
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
-### `requirements.txt`
-
-```plaintext
-numpy==2.2.4
-pandas==2.2.3
-scipy==1.15.2
-PuLP==3.0.2
-networkx==3.4.2
 ```
