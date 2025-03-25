@@ -43,7 +43,7 @@ if __name__ == "__main__":
     best_lower_bound = float('inf')
     i = 0
 
-    while i < max_iter:
+    while optimality_gap > 1e-10 or i < max_iter:
         duals = solve_rmp(rmp)
         new_routes = pricing_problem(n_bins, distance_matrix_with_depot, duals, waste_loads)
         if not new_routes:
