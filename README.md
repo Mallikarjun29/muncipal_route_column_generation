@@ -60,4 +60,3 @@ After running the `main.py` script, you will see the status, total cost, and det
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
